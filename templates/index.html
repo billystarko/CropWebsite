@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Trials — Farm Trial Manager{% endblock %}
+
+{% block content %}
+<h1>Research Trials</h1>
+
+<a href="{{ url_for('trial_new') }}" class="btn btn-primary">+ Create New Trial</a>
+
+{% if trials %}
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Year</th>
+            <th>Category</th>
+            <th>PI</th>
+            <th>Plots</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in trials %}
+        <tr>
+            <td><a href="{{ url_for('trial_detail', trial_id=t.id) }}">{{ t.name }}</a></td>
+            <td>{{ t.year }}</td>
+            <td>{{ t.crop_category }}</td>
+            <td>{{ t.pi_name }}</td>
+            <td>{{ t.plots | length }}</td>
+            <td>
+                <a href="{{ url_for('trial_edit', trial_id=t.id) }}">Edit</a>
+                <form method="post" action="{{ url_for('trial_delete', trial_id=t.id) }}" style="display:inline">
+                    <button type="submit" class="btn-link btn-danger-text" onclick="return confirm('Delete this trial and all its data?')">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>No trials yet. Create one to get started.</p>
+{% endif %}
+{% endblock %}

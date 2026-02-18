@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Traits — {{ trial.name }}{% endblock %}
+
+{% block content %}
+<h1>Traits for {{ trial.name }}</h1>
+<a href="{{ url_for('trial_detail', trial_id=trial.id) }}">&larr; Back to trial</a>
+
+<section class="card">
+    <h2>Add Trait</h2>
+    <form method="post" class="form-card">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required placeholder="e.g. Plant height">
+            </div>
+            <div class="form-group">
+                <label for="type">Type</label>
+                <select id="type" name="type">
+                    {% for tt in trait_types %}
+                    <option value="{{ tt }}">{{ tt | capitalize }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="units">Units</label>
+                <input type="text" id="units" name="units" placeholder="e.g. cm, kg, 1-9">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label for="min_val">Min Value (optional)</label>
+                <input type="number" step="any" id="min_val" name="min_val" placeholder="e.g. 0">
+            </div>
+            <div class="form-group">
+                <label for="max_val">Max Value (optional)</label>
+                <input type="number" step="any" id="max_val" name="max_val" placeholder="e.g. 9">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Add Trait</button>
+    </form>
+</section>
+
+<section class="card">
+    <h2>Current Traits ({{ trial.traits | length }})</h2>
+    {% if trial.traits %}
+    <table>
+        <thead>
+            <tr><th>Name</th><th>Type</th><th>Units</th><th>Range</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for t in trial.traits %}
+            <tr>
+                <td>{{ t.name }}</td>
+                <td>{{ t.type }}</td>
+                <td>{{ t.units or "—" }}</td>
+                <td>
+                    {% if t.min_val is not none or t.max_val is not none %}
+                        {{ t.min_val if t.min_val is not none else "" }} – {{ t.max_val if t.max_val is not none else "" }}
+                    {% else %}
+                        —
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="post" action="{{ url_for('trait_delete', trial_id=trial.id, trait_id=t.id) }}" style="display:inline">
+                        <button type="submit" class="btn-link btn-danger-text" onclick="return confirm('Delete this trait and all its measurements?')">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No traits defined yet.</p>
+    {% endif %}
+</section>
+{% endblock %}

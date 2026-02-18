@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Generate Plots — {{ trial.name }}{% endblock %}
+
+{% block content %}
+<h1>Generate Plots for {{ trial.name }}</h1>
+<a href="{{ url_for('trial_detail', trial_id=trial.id) }}">&larr; Back to trial</a>
+
+{% if not trial.site_blocks %}
+<div class="flash flash-warning">
+    You need to <a href="{{ url_for('block_new', trial_id=trial.id) }}">create a site block</a> before generating plots.
+</div>
+{% elif not trial.treatments %}
+<div class="flash flash-warning">
+    You need to <a href="{{ url_for('treatments', trial_id=trial.id) }}">define treatments</a> before generating plots.
+</div>
+{% else %}
+<form method="post" class="form-card">
+    <div class="form-group">
+        <label for="site_block_id">Site Block</label>
+        <select id="site_block_id" name="site_block_id" required>
+            {% for b in trial.site_blocks %}
+            <option value="{{ b.id }}">{{ b.name }} ({{ b.width_m }}m &times; {{ b.height_m }}m)</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="rows">Rows</label>
+            <input type="number" id="rows" name="rows" required min="1" value="4">
+        </div>
+        <div class="form-group">
+            <label for="cols">Columns</label>
+            <input type="number" id="cols" name="cols" required min="1" value="4">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Treatments to include</label>
+        {% for t in trial.treatments %}
+        <div class="checkbox-row">
+            <input type="checkbox" name="treatment_ids" value="{{ t.id }}" id="trt_{{ t.id }}" checked>
+            <label for="trt_{{ t.id }}">{{ t.name }}</label>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% set existing_plots = trial.plots | length %}
+    {% if existing_plots > 0 %}
+    <div class="flash flash-warning">
+        This trial already has {{ existing_plots }} plot(s). Generating new plots for the selected block will
+        <strong>delete existing plots</strong> for that block and replace them.
+    </div>
+    {% endif %}
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Generate Plots</button>
+        <a href="{{ url_for('trial_detail', trial_id=trial.id) }}" class="btn">Cancel</a>
+    </div>
+</form>
+{% endif %}
+{% endblock %}

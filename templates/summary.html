@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Summary — {{ trial.name }}{% endblock %}
+
+{% block content %}
+<h1>Summary for {{ trial.name }}</h1>
+<a href="{{ url_for('trial_detail', trial_id=trial.id) }}">&larr; Back to trial</a>
+
+<section class="card">
+    <h2>Select Trait</h2>
+    <form method="get" class="form-inline">
+        <div class="form-group">
+            <label for="trait_id">Numeric Trait</label>
+            <select name="trait_id" id="trait_id">
+                <option value="">— Select —</option>
+                {% for t in trial.traits %}
+                {% if t.type in ('numeric', 'rating') %}
+                <option value="{{ t.id }}" {{ "selected" if selected_trait and selected_trait.id == t.id else "" }}>{{ t.name }} ({{ t.units or t.type }})</option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">View Summary</button>
+    </form>
+</section>
+
+{% if selected_trait and summary_data %}
+<section class="card">
+    <h2>{{ selected_trait.name }} — Treatment Means</h2>
+    <table>
+        <thead>
+            <tr><th>Treatment</th><th>N</th><th>Mean</th><th>Std Dev</th></tr>
+        </thead>
+        <tbody>
+            {% for row in summary_data %}
+            <tr>
+                <td>{{ row.treatment }}</td>
+                <td>{{ row.n }}</td>
+                <td>{{ row.mean if row.mean is not none else "—" }}</td>
+                <td>{{ row.sd if row.sd is not none else "—" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="card">
+    <h2>Bar Chart</h2>
+    <canvas id="chart" width="600" height="300"></canvas>
+</section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var canvas = document.getElementById('chart');
+    var ctx = canvas.getContext('2d');
+    var data = {{ summary_data | tojson }};
+
+    if (!data.length) return;
+
+    var maxVal = Math.max.apply(null, data.map(function(d) { return d.mean || 0; }));
+    if (maxVal === 0) maxVal = 1;
+
+    var barWidth = Math.min(80, (canvas.width - 80) / data.length - 10);
+    var chartHeight = canvas.height - 60;
+    var startX = 60;
+    var startY = canvas.height - 40;
+
+    var colors = ['#4285F4', '#EA4335', '#FBBC05', '#34A853', '#FF6D01', '#46BDC6', '#7B1FA2', '#C2185B'];
+
+    // Draw axes
+    ctx.strokeStyle = '#333';
+    ctx.beginPath();
+    ctx.moveTo(startX, 10);
+    ctx.lineTo(startX, startY);
+    ctx.lineTo(canvas.width - 10, startY);
+    ctx.stroke();
+
+    // Y axis labels
+    ctx.fillStyle = '#333';
+    ctx.font = '11px monospace';
+    ctx.textAlign = 'right';
+    for (var i = 0; i <= 4; i++) {
+        var yVal = (maxVal * i / 4);
+        var yPos = startY - (chartHeight * i / 4);
+        ctx.fillText(yVal.toFixed(1), startX - 5, yPos + 4);
+        ctx.strokeStyle = '#ddd';
+        ctx.beginPath();
+        ctx.moveTo(startX, yPos);
+        ctx.lineTo(canvas.width - 10, yPos);
+        ctx.stroke();
+    }
+
+    // Bars
+    data.forEach(function(d, idx) {
+        var x = startX + 10 + idx * (barWidth + 10);
+        var barHeight = (d.mean || 0) / maxVal * chartHeight;
+        var y = startY - barHeight;
+
+        ctx.fillStyle = colors[idx % colors.length];
+        ctx.fillRect(x, y, barWidth, barHeight);
+
+        // Label
+        ctx.fillStyle = '#333';
+        ctx.textAlign = 'center';
+        ctx.font = '10px monospace';
+        ctx.save();
+        ctx.translate(x + barWidth / 2, startY + 12);
+        ctx.fillText(d.treatment.substring(0, 12), 0, 0);
+        ctx.restore();
+
+        // Value on top
+        ctx.fillText((d.mean || 0).toFixed(1), x + barWidth / 2, y - 4);
+    });
+});
+</script>
+{% elif selected_trait and not summary_data %}
+<p>No measurement data found for this trait.</p>
+{% else %}
+<p>Select a numeric or rating trait above to see summary statistics.</p>
+{% endif %}
+{% endblock %}

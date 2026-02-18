@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if block else "New" }} Site Block — Farm Trial Manager{% endblock %}
+
+{% block content %}
+<h1>{{ "Edit" if block else "New" }} Site Block for {{ trial.name }}</h1>
+
+<form method="post" class="form-card">
+    <div class="form-group">
+        <label for="name">Block Name</label>
+        <input type="text" id="name" name="name" required value="{{ block.name if block else '' }}" placeholder="e.g. Veg block south">
+    </div>
+
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="2">{{ block.description if block else '' }}</textarea>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="center_lat">Center Latitude</label>
+            <input type="number" step="any" id="center_lat" name="center_lat" value="{{ block.center_lat if block else 35.7796 }}">
+        </div>
+        <div class="form-group">
+            <label for="center_lng">Center Longitude</label>
+            <input type="number" step="any" id="center_lng" name="center_lng" value="{{ block.center_lng if block else -78.6382 }}">
+        </div>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label for="width_m">Width (m)</label>
+            <input type="number" step="any" id="width_m" name="width_m" value="{{ block.width_m if block else 50 }}" min="1">
+        </div>
+        <div class="form-group">
+            <label for="height_m">Height (m)</label>
+            <input type="number" step="any" id="height_m" name="height_m" value="{{ block.height_m if block else 50 }}" min="1">
+        </div>
+        <div class="form-group">
+            <label for="rotation_deg">Rotation (&deg;)</label>
+            <input type="number" step="any" id="rotation_deg" name="rotation_deg" value="{{ block.rotation_deg if block else 0 }}">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="2">{{ block.notes if block else '' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ "Update" if block else "Create" }} Block</button>
+        <a href="{{ url_for('trial_detail', trial_id=trial.id) }}" class="btn">Cancel</a>
+    </div>
+</form>
+{% endblock %}

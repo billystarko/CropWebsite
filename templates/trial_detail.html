@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}{{ trial.name }} — Farm Trial Manager{% endblock %}
+
+{% block content %}
+<h1>{{ trial.name }}</h1>
+
+<section class="card">
+    <h2>Trial Summary</h2>
+    <table class="detail-table">
+        <tr><th>Year</th><td>{{ trial.year }}</td></tr>
+        <tr><th>Category</th><td>{{ trial.crop_category | capitalize }}</td></tr>
+        <tr><th>PI</th><td>{{ trial.pi_name or "—" }}</td></tr>
+        <tr><th>Notes</th><td>{{ trial.notes or "—" }}</td></tr>
+    </table>
+    <a href="{{ url_for('trial_edit', trial_id=trial.id) }}" class="btn">Edit Trial</a>
+</section>
+
+<section class="card">
+    <h2>Site Blocks ({{ trial.site_blocks | length }})</h2>
+    {% if trial.site_blocks %}
+    <table>
+        <thead>
+            <tr><th>Name</th><th>Center</th><th>Size (m)</th><th>Rotation</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+            {% for b in trial.site_blocks %}
+            <tr>
+                <td>{{ b.name }}</td>
+                <td>{{ "%.5f"|format(b.center_lat) }}, {{ "%.5f"|format(b.center_lng) }}</td>
+                <td>{{ b.width_m }} &times; {{ b.height_m }}</td>
+                <td>{{ b.rotation_deg }}&deg;</td>
+                <td><a href="{{ url_for('block_edit', trial_id=trial.id, block_id=b.id) }}">Edit</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No site blocks defined yet.</p>
+    {% endif %}
+    <a href="{{ url_for('block_new', trial_id=trial.id) }}" class="btn btn-primary">+ Define Site Block</a>
+</section>
+
+<section class="card">
+    <h2>Treatments ({{ trial.treatments | length }})</h2>
+    {% if trial.treatments %}
+    <ul>
+        {% for t in trial.treatments %}
+        <li><strong>{{ t.name }}</strong>{% if t.description %} — {{ t.description }}{% endif %}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No treatments defined yet.</p>
+    {% endif %}
+    <a href="{{ url_for('treatments', trial_id=trial.id) }}" class="btn btn-primary">Manage Treatments</a>
+</section>
+
+<section class="card">
+    <h2>Plots ({{ trial.plots | length }})</h2>
+    {% if trial.plots %}
+    <p>{{ trial.plots | length }} plots across {{ trial.site_blocks | length }} block(s).</p>
+    <a href="{{ url_for('layout_view', trial_id=trial.id) }}" class="btn">View Map Layout</a>
+    {% else %}
+    <p>No plots generated yet. Define a site block and treatments first, then generate plots.</p>
+    {% endif %}
+    <a href="{{ url_for('generate_plots', trial_id=trial.id) }}" class="btn btn-primary">Generate Plots</a>
+</section>
+
+<section class="card">
+    <h2>Traits ({{ trial.traits | length }})</h2>
+    {% if trial.traits %}
+    <ul>
+        {% for t in trial.traits %}
+        <li><strong>{{ t.name }}</strong> ({{ t.type }}){% if t.units %} — {{ t.units }}{% endif %}</li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <p>No traits defined yet.</p>
+    {% endif %}
+    <a href="{{ url_for('traits', trial_id=trial.id) }}" class="btn btn-primary">Manage Traits</a>
+</section>
+
+<section class="card">
+    <h2>Data &amp; Analysis</h2>
+    <div class="button-row">
+        <a href="{{ url_for('measurements', trial_id=trial.id) }}" class="btn btn-primary">Enter Measurements</a>
+        <a href="{{ url_for('trial_summary', trial_id=trial.id) }}" class="btn">View Summary</a>
+        <a href="{{ url_for('export_csv', trial_id=trial.id, type='measurements') }}" class="btn">Export Measurements CSV</a>
+        <a href="{{ url_for('export_csv', trial_id=trial.id, type='layout') }}" class="btn">Export Layout CSV</a>
+    </div>
+</section>
+{% endblock %}

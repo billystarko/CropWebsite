@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}{{ "Edit" if trial else "New" }} Trial — Farm Trial Manager{% endblock %}
+
+{% block content %}
+<h1>{{ "Edit" if trial else "Create New" }} Trial</h1>
+
+<form method="post" class="form-card">
+    <div class="form-group">
+        <label for="name">Trial Name</label>
+        <input type="text" id="name" name="name" required value="{{ trial.name if trial else '' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="year">Year</label>
+        <input type="number" id="year" name="year" required value="{{ trial.year if trial else 2026 }}" min="2000" max="2100">
+    </div>
+
+    <div class="form-group">
+        <label for="crop_category">Crop Category</label>
+        <select id="crop_category" name="crop_category">
+            {% for cat in categories %}
+            <option value="{{ cat }}" {{ "selected" if trial and trial.crop_category == cat else "" }}>{{ cat | capitalize }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="pi_name">PI Name</label>
+        <input type="text" id="pi_name" name="pi_name" value="{{ trial.pi_name if trial else '' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="notes">Notes</label>
+        <textarea id="notes" name="notes" rows="3">{{ trial.notes if trial else '' }}</textarea>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">{{ "Update" if trial else "Create" }} Trial</button>
+        <a href="{{ url_for('trial_detail', trial_id=trial.id) if trial else url_for('index') }}" class="btn">Cancel</a>
+    </div>
+</form>
+{% endblock %}

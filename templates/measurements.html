@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Measurements — {{ trial.name }}{% endblock %}
+
+{% block content %}
+<h1>Enter Measurements for {{ trial.name }}</h1>
+<a href="{{ url_for('trial_detail', trial_id=trial.id) }}">&larr; Back to trial</a>
+
+<section class="card">
+    <h2>Select Trait &amp; Date</h2>
+    <form method="get" class="form-inline">
+        <div class="form-group">
+            <label for="trait_id">Trait</label>
+            <select id="trait_id" name="trait_id" required>
+                <option value="">— Select trait —</option>
+                {% for t in trial.traits %}
+                <option value="{{ t.id }}" {{ "selected" if trait and trait.id == t.id else "" }}>{{ t.name }} ({{ t.type }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="date">Date</label>
+            <input type="date" id="date" name="date" value="{{ mdate.isoformat() }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Load</button>
+    </form>
+</section>
+
+{% if trait and plots %}
+<section class="card">
+    <h2>{{ trait.name }} ({{ trait.type }}) — {{ mdate.isoformat() }}</h2>
+    {% if trait.units %}<p>Units: {{ trait.units }}</p>{% endif %}
+    {% if trait.min_val is not none or trait.max_val is not none %}
+    <p>Valid range: {{ trait.min_val if trait.min_val is not none else "—" }} to {{ trait.max_val if trait.max_val is not none else "—" }}</p>
+    {% endif %}
+
+    <form method="post">
+        <input type="hidden" name="trait_id" value="{{ trait.id }}">
+        <input type="hidden" name="date" value="{{ mdate.isoformat() }}">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Plot</th>
+                    <th>Block</th>
+                    <th>Treatment</th>
+                    <th>Value</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in plots %}
+                {% set m = existing_map.get(p.id) %}
+                <tr>
+                    <td>{{ p.plot_code }}</td>
+                    <td>{{ p.site_block.name if p.site_block else "—" }}</td>
+                    <td>{{ p.treatment.name if p.treatment else "—" }}</td>
+                    <td>
+                        {% if trait.type == "text" %}
+                        <textarea name="value_{{ p.id }}" rows="2" cols="20">{{ m.value if m else '' }}</textarea>
+                        {% elif trait.type == "numeric" or trait.type == "rating" %}
+                        <input type="number" step="any" name="value_{{ p.id }}" value="{{ m.value if m else '' }}"
+                            {% if trait.min_val is not none %}min="{{ trait.min_val }}"{% endif %}
+                            {% if trait.max_val is not none %}max="{{ trait.max_val }}"{% endif %}>
+                        {% else %}
+                        <input type="text" name="value_{{ p.id }}" value="{{ m.value if m else '' }}">
+                        {% endif %}
+                    </td>
+                    <td>
+                        <input type="text" name="note_{{ p.id }}" value="{{ m.note if m else '' }}" placeholder="optional">
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Measurements</button>
+        </div>
+    </form>
+</section>
+{% elif trait and not plots %}
+<div class="flash flash-warning">
+    No plots exist for this trial. <a href="{{ url_for('generate_plots', trial_id=trial.id) }}">Generate plots</a> first.
+</div>
+{% elif not trait %}
+<p>Select a trait above to begin entering measurements.</p>
+{% endif %}
+{% endblock %}
