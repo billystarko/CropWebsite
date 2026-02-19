@@ -1,11 +1,11 @@
-run = "pip install -r requirements.txt && python app.py"
+run = "sh -c 'if [ ! -d venv ]; then python -m venv venv; fi && . venv/bin/activate && pip install -q -r requirements.txt && python app.py'"
 language = "python3"
 
 [nix]
 channel = "stable-24_05"
 
 [deployment]
-run = ["sh", "-c", "pip install -r requirements.txt && python app.py"]
+run = ["sh", "-c", "if [ ! -d venv ]; then python -m venv venv; fi && . venv/bin/activate && pip install -q -r requirements.txt && python app.py"]
 
 [[ports]]
 localPort = 5000
