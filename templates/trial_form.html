@@ -30,6 +30,16 @@
     </div>
 
     <div class="form-group">
+        <label for="farm_name">Farm</label>
+        <select id="farm_name" name="farm_name">
+            <option value="">— No farm —</option>
+            {% for farm in farms %}
+            <option value="{{ farm.name }}" {{ "selected" if trial and trial.farm_name == farm.name else "" }}>{{ farm.label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group">
         <label for="notes">Notes</label>
         <textarea id="notes" name="notes" rows="3">{{ trial.notes if trial else '' }}</textarea>
     </div>

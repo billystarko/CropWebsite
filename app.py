@@ -27,8 +27,12 @@ db.init_app(app)
 with app.app_context():
     db.create_all()
 
-CROP_CATEGORIES = ["vegetable", "fruit", "turf", "ornamental", "other"]
+CROP_CATEGORIES = ["corn", "soybean", "vegetable", "fruit", "turf", "ornamental", "other"]
 TRAIT_TYPES = ["numeric", "rating", "categorical", "text"]
+FARMS = [
+    {"name": "hort_farm", "label": "Hort Farm"},
+    {"name": "feel_farm", "label": "FEEL Farm"},
+]
 
 # ---------------------------------------------------------------------------
 # Home / Trial list
@@ -51,13 +55,14 @@ def trial_new():
             year=int(request.form["year"]),
             crop_category=request.form["crop_category"],
             pi_name=request.form.get("pi_name", ""),
+            farm_name=request.form.get("farm_name", ""),
             notes=request.form.get("notes", ""),
         )
         db.session.add(trial)
         db.session.commit()
         flash("Trial created.", "success")
         return redirect(url_for("trial_detail", trial_id=trial.id))
-    return render_template("trial_form.html", trial=None, categories=CROP_CATEGORIES)
+    return render_template("trial_form.html", trial=None, categories=CROP_CATEGORIES, farms=FARMS)
 
 
 @app.route("/trials/<int:trial_id>")
@@ -74,11 +79,12 @@ def trial_edit(trial_id):
         trial.year = int(request.form["year"])
         trial.crop_category = request.form["crop_category"]
         trial.pi_name = request.form.get("pi_name", "")
+        trial.farm_name = request.form.get("farm_name", "")
         trial.notes = request.form.get("notes", "")
         db.session.commit()
         flash("Trial updated.", "success")
         return redirect(url_for("trial_detail", trial_id=trial.id))
-    return render_template("trial_form.html", trial=trial, categories=CROP_CATEGORIES)
+    return render_template("trial_form.html", trial=trial, categories=CROP_CATEGORIES, farms=FARMS)
 
 
 @app.route("/trials/<int:trial_id>/delete", methods=["POST"])
@@ -484,6 +490,39 @@ def trial_summary(trial_id):
         summary_data=summary_data,
         selected_trait=selected_trait,
     )
+
+# ---------------------------------------------------------------------------
+# Farm map view
+# ---------------------------------------------------------------------------
+
+@app.route("/farm_map")
+def farm_map():
+    farm_name = request.args.get("farm", FARMS[0]["name"])
+    trials = Trial.query.filter_by(farm_name=farm_name).order_by(Trial.year.desc(), Trial.name).all()
+    trials_data = []
+    for t in trials:
+        plot_count = len(t.plots)
+        trials_data.append({
+            "id": t.id,
+            "name": t.name,
+            "year": t.year,
+            "crop_category": t.crop_category,
+            "pi_name": t.pi_name,
+            "plot_count": plot_count,
+            "map_x": t.map_x,
+            "map_y": t.map_y,
+        })
+    return render_template("farm_map.html", farms=FARMS, selected_farm=farm_name, trials=trials, trials_json=trials_data)
+
+
+@app.route("/trials/<int:trial_id>/update_position", methods=["POST"])
+def update_trial_position(trial_id):
+    trial = db.get_or_404(Trial, trial_id)
+    data = request.get_json()
+    trial.map_x = float(data["map_x"])
+    trial.map_y = float(data["map_y"])
+    db.session.commit()
+    return jsonify({"ok": True})
 
 # ---------------------------------------------------------------------------
 # CSV export

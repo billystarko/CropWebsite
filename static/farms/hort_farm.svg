@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <pattern id="field-h" width="60" height="60" patternUnits="userSpaceOnUse">
+      <rect width="60" height="60" fill="#6a994e"/>
+      <line x1="0" y1="30" x2="60" y2="30" stroke="#5a8a3e" stroke-width="1"/>
+      <line x1="30" y1="0" x2="30" y2="60" stroke="#5a8a3e" stroke-width="1"/>
+    </pattern>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#7cb342"/>
+  <!-- Fields -->
+  <rect x="50" y="80" width="500" height="300" fill="url(#field-h)" stroke="#4a7a2e" stroke-width="2" rx="4"/>
+  <rect x="600" y="80" width="550" height="200" fill="url(#field-h)" stroke="#4a7a2e" stroke-width="2" rx="4"/>
+  <rect x="600" y="320" width="300" height="200" fill="url(#field-h)" stroke="#4a7a2e" stroke-width="2" rx="4"/>
+  <rect x="50" y="430" width="400" height="250" fill="url(#field-h)" stroke="#4a7a2e" stroke-width="2" rx="4"/>
+  <rect x="500" y="560" width="350" height="180" fill="url(#field-h)" stroke="#4a7a2e" stroke-width="2" rx="4"/>
+  <rect x="950" y="320" width="200" height="300" fill="url(#field-h)" stroke="#4a7a2e" stroke-width="2" rx="4"/>
+  <!-- Paths -->
+  <rect x="545" y="80" width="10" height="660" fill="#c8b88a" opacity="0.7"/>
+  <rect x="50" y="385" width="1100" height="10" fill="#c8b88a" opacity="0.7"/>
+  <!-- Buildings -->
+  <rect x="940" y="640" width="120" height="80" fill="#8d6e63" stroke="#5d4037" stroke-width="2" rx="3"/>
+  <rect x="1080" y="660" width="70" height="60" fill="#a1887f" stroke="#5d4037" stroke-width="2" rx="3"/>
+  <!-- Title -->
+  <rect x="0" y="0" width="1200" height="50" fill="rgba(0,0,0,0.45)"/>
+  <text x="600" y="34" text-anchor="middle" font-family="sans-serif" font-size="24" font-weight="bold" fill="white">HORT FARM — Placeholder (replace with aerial image)</text>
+  <!-- Field labels -->
+  <text x="300" y="240" text-anchor="middle" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,0.7)">Field A</text>
+  <text x="875" y="190" text-anchor="middle" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,0.7)">Field B</text>
+  <text x="750" y="430" text-anchor="middle" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,0.7)">Field C</text>
+  <text x="250" y="565" text-anchor="middle" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,0.7)">Field D</text>
+  <text x="675" y="660" text-anchor="middle" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,0.7)">Field E</text>
+  <text x="1050" y="480" text-anchor="middle" font-family="sans-serif" font-size="18" fill="rgba(255,255,255,0.7)">Field F</text>
+  <text x="1000" y="685" text-anchor="middle" font-family="sans-serif" font-size="12" fill="rgba(255,255,255,0.8)">Buildings</text>
+</svg>

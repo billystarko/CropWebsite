@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Farm Map — Farm Trial Manager{% endblock %}
+
+{% block head %}
+<style>
+    .farm-map-container { max-width: 1200px; }
+    .farm-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        flex-wrap: wrap;
+    }
+    .farm-controls label { font-weight: 600; font-size: 0.95rem; }
+    .farm-controls select { padding: 0.4rem 0.5rem; font-size: 0.9rem; border: 1px solid #bbb; border-radius: 4px; }
+
+    .map-wrapper {
+        position: relative;
+        width: 100%;
+        border: 2px solid #888;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #e8e8e8;
+    }
+    .map-wrapper img {
+        display: block;
+        width: 100%;
+        height: auto;
+        user-select: none;
+        -webkit-user-drag: none;
+    }
+
+    .trial-block {
+        position: absolute;
+        background: rgba(46, 125, 50, 0.88);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 5px;
+        font-size: 0.8rem;
+        cursor: grab;
+        white-space: nowrap;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        user-select: none;
+        z-index: 10;
+        transition: box-shadow 0.15s;
+        min-width: 80px;
+        text-align: center;
+    }
+    .trial-block:active { cursor: grabbing; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+    .trial-block .tb-name { font-weight: 700; }
+    .trial-block .tb-detail { font-size: 0.7rem; opacity: 0.9; }
+
+    .map-empty-msg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        color: #666;
+        text-align: center;
+    }
+
+    .map-legend {
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+        color: #555;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="farm-map-container">
+    <h1>Farm Map</h1>
+
+    <div class="farm-controls">
+        <label for="farm-select">Farm:</label>
+        <select id="farm-select">
+            {% for farm in farms %}
+            <option value="{{ farm.name }}" {{ "selected" if selected_farm == farm.name else "" }}>{{ farm.label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="map-wrapper" id="map-wrapper">
+        <img id="farm-image" src="{{ url_for('static', filename='farms/' + selected_farm + '.svg') }}" alt="Farm map" draggable="false">
+
+        {% if not trials %}
+        <div class="map-empty-msg" id="empty-msg">
+            No trials assigned to this farm yet.<br>
+            <a href="{{ url_for('trial_new') }}">Create a trial</a> and select this farm.
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="map-legend">
+        Drag trial blocks to position them on the farm image. Positions are saved automatically.
+        {% if trials %} — {{ trials | length }} trial(s) shown.{% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+var TRIALS_DATA = {{ trials_json | tojson }};
+var SELECTED_FARM = {{ selected_farm | tojson }};
+</script>
+<script src="{{ url_for('static', filename='farm_map.js') }}"></script>
+{% endblock %}

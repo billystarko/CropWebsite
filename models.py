@@ -11,6 +11,9 @@ class Trial(db.Model):
     year = db.Column(db.Integer, nullable=False)
     crop_category = db.Column(db.String(50), nullable=False, default="other")
     pi_name = db.Column(db.String(200), default="")
+    farm_name = db.Column(db.String(100), default="")
+    map_x = db.Column(db.Float, nullable=False, default=50.0)  # percent position on farm image
+    map_y = db.Column(db.Float, nullable=False, default=50.0)
     notes = db.Column(db.Text, default="")
 
     site_blocks = db.relationship("SiteBlock", backref="trial", cascade="all, delete-orphan", lazy=True)
